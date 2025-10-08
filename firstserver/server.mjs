@@ -1,5 +1,11 @@
 // const express = require('express')// commonjs
 import express from 'express'// commonjs
+import fs from 'fs'
+
+const data= JSON.parse(fs.readFileSync('./data/data.json','utf-8'))
+let products = data.products;
+// console.log(products)
+
 const app = express()
 const port = 3000
 // endpoints - APIs
@@ -18,13 +24,15 @@ app.get('/', (req, res) => {
 
 app.get('/products', (req, res) => {
 
-  res.status(200).json({products:["laptop","mobile","tablet"]})
+  res.status(200).json({products:products})
+
 })
+
+
 app.get('/about', (req, res) => {
 
   res.status(404).send('<h1 style="color:blue">Not found!</h1>')
 })
-
 
 
 //6 - 10 - 2025
@@ -32,29 +40,47 @@ app.get('/about', (req, res) => {
 app.get('/product/:id', (req, res) => {
 
   const id = req.params.id;
-  if (id > 100) {
+  const product= products.find((item,index)=>{
+    return item.id == id;
+  })// ->item || filter() -> array
+
+
+  if (!product) {
     res.status(404).json({message:`No product found`})
     
   } else {
     
-    res.status(200).json({products:`showing details of product id : ${id}`})
+    res.status(200).json({message:"Product found",product:product})
   }
 
-
 })
+
 //query parameters (optional)
 app.get('/products/search', (req, res) => {
 
-  const name = req.query.name;
-  if (!name){
-    res.status(200).json({message:`Hello User`})
+  const brand = req.query.brand;
+  if (!brand){
+    res.status(200).json({message:"showing all brand's products", products:products})
     
   } else {
+
+    const productsByBrand= products.filter((item,index)=>{
+      let br= item.brand ? (item.brand).toLowerCase(): '';
+      console.log(br)
+    return br == brand.toLowerCase();
+  })
+
+  if (productsByBrand.length > 0) {
     
-    res.status(200).json({message:`Hello ${name}`})
+    res.status(200).json({message:`Showing products of ${brand}`,productsByBrand})
+  } else {
+    
+    res.status(200).json({message:`No product found from ${brand}.`})
+  }
   }
 
 })
+
 //request body
 app.get('/user', (req, res) => {
 const user  = req.body;
@@ -75,6 +101,10 @@ res.status(200).json({user:user})
 //  1. user details - implement request body
 // 2. delete user - implement route parameter 
 // 3. search user - implement query parameter (q) 
+
+// 8/10/25
+//file system
+
 
 
 
