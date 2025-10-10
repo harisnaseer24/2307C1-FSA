@@ -81,6 +81,11 @@ app.get('/products/search', (req, res) => {
 
 })
 
+
+
+
+
+
 //request body
 app.get('/user', (req, res) => {
 const user  = req.body;
@@ -105,7 +110,78 @@ res.status(200).json({user:user})
 // 8/10/25
 //file system
 
+//10-10-25
 
+//adding product
+app.post('/product/add', (req, res) => {
+ try {
+
+let product = req.body;
+if (product) {
+  
+  products.push(product)
+  res.status(200).json({message:`Product added successfully.`,addedProduct:product})
+
+} else {
+
+  
+  res.status(400).json({message:`Product details are required to add the product.`})
+}
+
+  
+ } catch (error) {
+  console.log(error)
+    res.status(500).json({message:`Internal Server error: ${error}.`})
+
+ }
+
+})
+
+
+// delete
+//adding product
+app.delete('/product/:id', (req, res) => {
+ try {
+let id = req.params.id;
+if (id) {
+  const product= products.find((item,index)=>{
+    return item.id == id;
+  })// ->item || filter() -> array
+
+  if (!product) {
+    res.status(404).json({message:`No product found from this id`})
+    
+  } else {
+
+    
+  // let newProducts= products.filter((item,index)=>{
+  //     return item.id != id;
+  // })
+
+  // products = newProducts;
+  products = products.filter((item,index)=>{
+      return item.id != id;
+  })
+
+  res.status(200).json({message:`Product deleted successfully.`})
+
+  }
+
+ 
+
+
+
+} else {
+
+  res.status(400).json({message:`No id found.`})
+}
+ } catch (error) {
+  console.log(error)
+    res.status(500).json({message:`Internal Server error: ${error}.`})
+
+ }
+
+})
 
 
 app.listen(port, () => {
