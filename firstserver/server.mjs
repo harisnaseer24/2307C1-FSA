@@ -154,11 +154,7 @@ if (id) {
   } else {
 
     
-  // let newProducts= products.filter((item,index)=>{
-  //     return item.id != id;
-  // })
-
-  // products = newProducts;
+ 
   products = products.filter((item,index)=>{
       return item.id != id;
   })
