@@ -1,21 +1,19 @@
-import fs from 'fs'
 
-const data= JSON.parse(fs.readFileSync('./data/data.json','utf-8'))
-let products = data.products;
+import Product from '../models/productModel.mjs';
 
-let AllProducts=(req, res) => {
-
+let AllProducts= async(req, res) => {
+  const products=  await Product.find();
   res.status(200).json({products:products})
 
 }
 
 
-let SingleProduct=(req, res) => {
+let SingleProduct=async (req, res) => {
 
   const id = req.params.id;
-  const product= products.find((item,index)=>{
-    return item.id == id;
-  })// ->item || filter() -> array
+  // const product= await Product.find({_id:id}) //-> array
+  // const product= await Product.findOne({_id:id}) //-> single document
+  const product= await Product.findById(id)
 
 
   if (!product) {
@@ -29,22 +27,27 @@ let SingleProduct=(req, res) => {
 }
 
 // Add product
-const AddProduct=(req, res) => {
+const AddProduct= async (req, res) => {
  try {
 
-let product = req.body;
-if (product) {
-  
-  products.push(product)
-  res.status(200).json({message:`Product added successfully.`,addedProduct:product})
+let {title,description, price, stock,rating, category, brand,images,discount} = req.body;
+
+
+if (title && price && brand && discount && category) {
+  let newProduct = new Product({
+    title,description, price, stock,rating, category, brand,images,discount
+  })
+
+  let addProd= await newProduct.save();
+  if (addProd) {
+    res.status(200).json({message:`Product added successfully.`,addedProduct:addProd})
+  } else {
+    res.status(500).json({message:`Failed to add product right now..!`})
+  }
 
 } else {
-
-  
   res.status(400).json({message:`Product details are required to add the product.`})
 }
-
-  
  } catch (error) {
   console.log(error)
     res.status(500).json({message:`Internal Server error: ${error}.`})
